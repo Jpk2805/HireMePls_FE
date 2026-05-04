@@ -1,0 +1,17 @@
+{
+  "short_name": "HireMe",
+  "name": "HireMe - Job Processing Platform",
+  "description": "Scalable job processing and management platform",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#3b82f6"
+}
