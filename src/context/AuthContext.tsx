@@ -34,7 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       toast.success('Login successful!')
     } catch (error: any) {
-      const message = error.response?.data?.message || 'Login failed'
+      const message = error.response?.data?.message || error.response?.data?.error || 'Login failed'
       toast.error(message)
       throw error
     } finally {
@@ -54,7 +54,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         toast.success('Account created successfully!')
       } catch (error: any) {
-        const message = error.response?.data?.message || 'Registration failed'
+        const details = error.response?.data?.details
+        const message = Array.isArray(details) && details.length > 0
+          ? details.map((d: any) => d.message).join(', ')
+          : error.response?.data?.message || error.response?.data?.error || 'Registration failed'
         toast.error(message)
         throw error
       } finally {

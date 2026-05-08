@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@context/AuthContext'
 import { useAuth } from '@hooks/useAuth'
 
@@ -10,6 +11,12 @@ import DashboardPage from '@pages/dashboard/DashboardPage'
 import JobsListPage from '@pages/jobs/JobsListPage'
 import JobDetailPage from '@pages/jobs/JobDetailPage'
 import CreateJobPage from '@pages/jobs/CreateJobPage'
+import ResumesPage from '@pages/resumes/ResumesPage'
+import ResumeDetailPage from '@pages/resumes/ResumeDetailPage'
+import CreateResumePage from '@pages/resumes/CreateResumePage'
+import LogsPage from '@pages/LogsPage'
+import ApiKeysPage from '@pages/ApiKeysPage'
+import SettingsPage from '@pages/SettingsPage'
 
 // Components
 import MainLayout from '@components/layout/MainLayout'
@@ -128,6 +135,72 @@ function AppContent() {
         }
       />
 
+      <Route
+        path="/resumes"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <ResumesPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/resumes/create"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <CreateResumePage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/resumes/:id"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <ResumeDetailPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/logs"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <LogsPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/api-keys"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <ApiKeysPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <MainLayout>
+              <SettingsPage />
+            </MainLayout>
+          </ProtectedRoute>
+        }
+      />
+
       {/* 404 */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
@@ -142,6 +215,7 @@ export default function App() {
     <Router>
       <AuthProvider>
         <AppContent />
+        <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
       </AuthProvider>
     </Router>
   )
