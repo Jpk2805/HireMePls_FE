@@ -1,17 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import * as resumeService from '@services/resume.service'
+import type { Resume } from '@services/resume.service'
 
-interface Resume {
-  id: string
-  userId: string
-  jobPostingUrl?: string
-  workHistory?: string
-  sections?: Record<string, any>
-  pdfUrl?: string
-  status: 'pending' | 'completed' | 'failed'
-  createdAt: string
-  updatedAt: string
+const statusColors: Record<string, string> = {
+  completed: 'text-green-700 bg-green-50',
+  pending: 'text-amber-700 bg-amber-50',
+  failed: 'text-red-700 bg-red-50',
 }
 
 export default function ResumesPage() {
@@ -20,43 +15,36 @@ export default function ResumesPage() {
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
-  useEffect(() => {
-    const fetchResumes = async () => {
-      try {
-        setLoading(true)
-        const response = await resumeService.listResumes({
-          page: pagination.page,
-          limit: pagination.limit,
-        })
-        setResumes(response.data)
-        setPagination({
-          page: response.page,
-          limit: response.limit,
-          total: response.total,
-          totalPages: response.totalPages,
-        })
-      } catch (error) {
-        console.error('Failed to fetch resumes:', error)
-      } finally {
-        setLoading(false)
-      }
+  const fetchResumes = useCallback(async () => {
+    try {
+      setLoading(true)
+      const response = await resumeService.listResumes({ page: pagination.page, limit: pagination.limit })
+      setResumes(response.data)
+      setPagination({ page: response.page, limit: response.limit, total: response.total, totalPages: response.totalPages })
+    } catch (error) {
+      console.error('Failed to fetch resumes:', error)
+    } finally {
+      setLoading(false)
     }
-
-    fetchResumes()
   }, [pagination.page])
 
+  useEffect(() => {
+    fetchResumes()
+  }, [fetchResumes])
+
+  useEffect(() => {
+    const hasPending = resumes.some((r) => r.status === 'pending' || r.status === 'active')
+    if (!hasPending) return
+    const interval = setInterval(fetchResumes, 3000)
+    return () => clearInterval(interval)
+  }, [resumes, fetchResumes])
+
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
+    return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
   }
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Delete this resume? This cannot be undone.')) return
-
     try {
       await resumeService.deleteResume(id)
       setResumes(resumes.filter((r) => r.id !== id))
@@ -65,10 +53,24 @@ export default function ResumesPage() {
     }
   }
 
+  const handleDownload = async (id: string, pdfUrl: string) => {
+    try {
+      const url = await resumeService.getResumeDownloadUrl(id)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `resume-${id}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    } catch {
+      window.open(pdfUrl, '_blank')
+    }
+  }
+
   if (loading && resumes.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-slate-300">Loading resumes...</div>
+      <div className="flex items-center justify-center min-h-64">
+        <div className="text-gray-400 text-sm">Loading resumes...</div>
       </div>
     )
   }
@@ -77,86 +79,106 @@ export default function ResumesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold text-white">Generated Resumes</h1>
-          <p className="text-slate-400 mt-2">View and manage your AI-generated resumes</p>
+          <h1 className="text-xl font-semibold text-[#111111]">Resumes</h1>
+          <p className="text-gray-500 mt-0.5 text-sm">View and manage your AI-generated resumes</p>
         </div>
         <button
           onClick={() => navigate('/resumes/create')}
-          className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
+          className="px-3 py-1.5 bg-[#111111] hover:bg-gray-800 text-white font-medium rounded-md transition-colors text-sm"
         >
           + Generate Resume
         </button>
       </div>
 
       {resumes.length === 0 ? (
-        <div className="backdrop-blur-md bg-slate-800/40 border border-slate-700/30 p-12 rounded-xl text-center">
-          <p className="text-slate-400 text-lg">No resumes yet</p>
-          <p className="text-slate-500 text-sm mt-2">Create your first resume to get started</p>
+        <div className="bg-white border border-gray-200 rounded-md p-10 text-center">
+          <p className="text-gray-500 text-sm">No resumes yet</p>
+          <p className="text-gray-400 text-sm mt-1">Generate your first AI resume to get started</p>
           <button
             onClick={() => navigate('/resumes/create')}
-            className="mt-4 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors"
+            className="mt-4 px-3 py-1.5 bg-[#111111] hover:bg-gray-800 text-white font-medium rounded-md transition-colors text-sm"
           >
             Generate First Resume
           </button>
         </div>
       ) : (
         <>
-          <div className="space-y-3">
-            {resumes.map((resume) => (
-              <div
-                key={resume.id}
-                className="backdrop-blur-md bg-slate-800/40 border border-slate-700/30 p-6 rounded-lg hover:bg-slate-800/60 hover:border-slate-700/50 transition-colors"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="font-mono text-sm text-purple-400">{resume.id}</span>
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-medium ${
-                          resume.status === 'completed'
-                            ? 'text-green-400 bg-green-500/10'
-                            : resume.status === 'pending'
-                              ? 'text-amber-400 bg-amber-500/10'
-                              : 'text-red-400 bg-red-500/10'
-                        }`}
-                      >
+          <div className="bg-white border border-gray-200 rounded-md overflow-hidden">
+            <table className="table-fixed w-full border-collapse text-sm">
+              <thead>
+                <tr>
+                  <th className="text-xs font-medium text-gray-500 uppercase text-left py-2 px-3 border-b border-gray-100 w-[120px]">
+                    ID
+                  </th>
+                  <th className="text-xs font-medium text-gray-500 uppercase text-left py-2 px-3 border-b border-gray-100">
+                    URL / Title
+                  </th>
+                  <th className="text-xs font-medium text-gray-500 uppercase text-left py-2 px-3 border-b border-gray-100 w-[100px]">
+                    Status
+                  </th>
+                  <th className="text-xs font-medium text-gray-500 uppercase text-left py-2 px-3 border-b border-gray-100 w-[160px]">
+                    Created
+                  </th>
+                  <th className="text-xs font-medium text-gray-500 uppercase text-right py-2 px-3 border-b border-gray-100 w-[220px]">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {resumes.map((resume) => (
+                  <tr key={resume.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="py-2 px-3 border-b border-gray-50 font-mono text-xs text-gray-400">
+                      {resume.id.slice(0, 8)}…
+                    </td>
+                    <td className="py-2 px-3 border-b border-gray-50 text-sm text-gray-700 truncate">
+                      <span className="truncate block max-w-xs text-gray-600" title={resume.title}>
+                        {resume.title}
+                      </span>
+                    </td>
+                    <td className="py-2 px-3 border-b border-gray-50">
+                      <span className={`text-xs px-2 py-0.5 rounded font-medium ${statusColors[resume.status] ?? 'text-gray-600 bg-gray-100'}`}>
                         {resume.status}
                       </span>
-                    </div>
-                    {resume.jobPostingUrl && (
-                      <p className="text-slate-400 text-sm mb-1 truncate">
-                        Job: <span className="text-slate-300">{resume.jobPostingUrl}</span>
-                      </p>
-                    )}
-                    <p className="text-slate-400 text-sm">Created {formatDate(resume.createdAt)}</p>
-                  </div>
-                  <div className="flex gap-2 ml-4">
-                    {resume.status === 'completed' && resume.pdfUrl && (
-                      <a
-                        href={resume.pdfUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
-                      >
-                        Download PDF
-                      </a>
-                    )}
-                    <button
-                      onClick={() => navigate(`/resumes/${resume.id}`)}
-                      className="px-3 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors"
-                    >
-                      View
-                    </button>
-                    <button
-                      onClick={() => handleDelete(resume.id)}
-                      className="px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+                    </td>
+                    <td className="py-2 px-3 border-b border-gray-50 text-sm text-gray-500">
+                      {formatDate(resume.createdAt)}
+                    </td>
+                    <td className="py-2 px-3 border-b border-gray-50">
+                      <div className="flex items-center justify-end gap-2">
+                        {(resume.status === 'pending' || resume.status === 'active') && (
+                          <button
+                            disabled
+                            className="px-2.5 py-1 bg-white border border-gray-200 text-gray-400 text-xs font-medium rounded-md opacity-60 cursor-not-allowed"
+                          >
+                            Generating…
+                          </button>
+                        )}
+                        {resume.status === 'completed' && resume.pdfUrl && (
+                          <button
+                            onClick={() => handleDownload(resume.id, resume.pdfUrl!)}
+                            className="px-2.5 py-1 bg-white border border-gray-200 hover:bg-gray-50 text-[#111111] text-xs font-medium rounded-md transition-colors"
+                          >
+                            Download PDF
+                          </button>
+                        )}
+                        <button
+                          onClick={() => navigate(`/resumes/${resume.id}`)}
+                          className="px-2.5 py-1 bg-white border border-gray-200 hover:bg-gray-50 text-[#111111] text-xs font-medium rounded-md transition-colors"
+                        >
+                          View
+                        </button>
+                        <button
+                          onClick={() => handleDelete(resume.id)}
+                          className="px-2.5 py-1 bg-white border border-red-200 hover:bg-red-50 text-red-600 text-xs font-medium rounded-md transition-colors"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
           {pagination.totalPages > 1 && (
@@ -164,17 +186,17 @@ export default function ResumesPage() {
               <button
                 disabled={pagination.page === 1}
                 onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+                className="px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed text-[#111111] text-sm rounded-md transition-colors"
               >
                 ← Previous
               </button>
-              <span className="text-slate-300 text-sm">
+              <span className="text-gray-500 text-sm">
                 Page {pagination.page} of {pagination.totalPages} ({pagination.total} total)
               </span>
               <button
                 disabled={pagination.page === pagination.totalPages}
                 onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white rounded-lg transition-colors"
+                className="px-3 py-1.5 bg-white border border-gray-200 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed text-[#111111] text-sm rounded-md transition-colors"
               >
                 Next →
               </button>

@@ -12,62 +12,66 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-
     try {
       await login(email, password)
       navigate('/dashboard')
     } catch (error) {
-      // Error toast already handled by context
+      // Error toast handled by context
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="backdrop-blur-md bg-slate-800/40 border border-slate-700/30 p-8 rounded-2xl shadow-2xl w-full max-w-md">
+    <div className="flex items-center justify-center min-h-screen bg-surface-muted">
+      <div className="w-full max-w-sm px-4">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Job Processing</h1>
-          <p className="text-slate-400">Sign in to your account</p>
+          <div className="inline-flex items-center justify-center w-10 h-10 bg-ink rounded-xl mb-5">
+            <span className="text-white font-bold text-sm tracking-tight">JP</span>
+          </div>
+          <h1 className="text-2xl font-semibold text-ink">Welcome back</h1>
+          <p className="text-gray-500 mt-1.5 text-sm">Sign in to your account</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
-            <input
-              type="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              required
-            />
-          </div>
+        <div className="bg-white border border-gray-200 rounded-md p-7">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-ink mb-1.5">Email</label>
+              <input
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md text-ink placeholder-gray-400 focus:outline-none focus:border-gray-400 text-sm transition-colors"
+                required
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 bg-slate-700/50 border border-slate-600/50 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              required
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-ink mb-1.5">Password</label>
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 bg-white border border-gray-200 rounded-md text-ink placeholder-gray-400 focus:outline-none focus:border-gray-400 text-sm transition-colors"
+                required
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full px-4 py-2 mt-6 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-600 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors"
-          >
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full px-4 py-2 mt-1 bg-ink hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-md transition-colors text-sm"
+            >
+              {loading ? 'Signing in...' : 'Sign in'}
+            </button>
+          </form>
+        </div>
 
-        <p className="mt-6 text-center text-slate-400 text-sm">
-          Don't have an account?{' '}
-          <Link to="/register" className="text-purple-400 hover:text-purple-300 font-medium transition-colors">
+        <p className="mt-5 text-center text-gray-500 text-sm">
+          No account?{' '}
+          <Link to="/register" className="text-ink font-medium hover:underline">
             Create one →
           </Link>
         </p>

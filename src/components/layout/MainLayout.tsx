@@ -8,17 +8,11 @@ interface MainLayoutProps {
 
 export default function MainLayout({ children }: MainLayoutProps) {
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Sidebar */}
+    <div className="flex h-screen bg-white overflow-hidden">
       <Sidebar />
-
-      {/* Main content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <Header />
-
-        {/* Page content */}
-        <main className="flex-1 p-8 overflow-auto">
+        <main className="flex-1 overflow-y-auto px-6 py-6 bg-gray-50">
           {children}
         </main>
       </div>

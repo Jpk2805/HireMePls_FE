@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@context/AuthContext'
 import { useAuth } from '@hooks/useAuth'
@@ -8,208 +7,66 @@ import { useAuth } from '@hooks/useAuth'
 import LoginPage from '@pages/auth/LoginPage'
 import RegisterPage from '@pages/auth/RegisterPage'
 import DashboardPage from '@pages/dashboard/DashboardPage'
-import JobsListPage from '@pages/jobs/JobsListPage'
-import JobDetailPage from '@pages/jobs/JobDetailPage'
-import CreateJobPage from '@pages/jobs/CreateJobPage'
 import ResumesPage from '@pages/resumes/ResumesPage'
 import ResumeDetailPage from '@pages/resumes/ResumeDetailPage'
 import CreateResumePage from '@pages/resumes/CreateResumePage'
-import LogsPage from '@pages/LogsPage'
-import ApiKeysPage from '@pages/ApiKeysPage'
-import SettingsPage from '@pages/SettingsPage'
+import JobBoardPage from '@pages/job-postings/JobBoardPage'
+import JobPostingDetailPage from '@pages/job-postings/JobPostingDetailPage'
+import SavedSearchesPage from '@pages/saved-searches/SavedSearchesPage'
+import CompaniesPage from '@pages/companies/CompaniesPage'
+import CompanyDetailPage from '@pages/companies/CompanyDetailPage'
+import ProfilePage from '@pages/profile/ProfilePage'
+import OutreachPage from '@pages/job-postings/OutreachPage'
+import ApplicationsPage from '@pages/applications/ApplicationsPage'
 
 // Components
 import MainLayout from '@components/layout/MainLayout'
 
-/**
- * Protected Route Component
- */
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth()
-
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
-  }
-
+  if (isLoading) return <div>Loading...</div>
+  if (!isAuthenticated) return <Navigate to="/login" replace />
   return <>{children}</>
 }
 
-/**
- * Public Route Component (redirect to dashboard if authenticated)
- */
 const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth()
-
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
-
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />
-  }
-
+  if (isLoading) return <div>Loading...</div>
+  if (isAuthenticated) return <Navigate to="/dashboard" replace />
   return <>{children}</>
 }
 
-/**
- * Main App Component
- */
 function AppContent() {
   return (
     <Routes>
-      {/* Public Routes */}
-      <Route
-        path="/login"
-        element={
-          <PublicRoute>
-            <LoginPage />
-          </PublicRoute>
-        }
-      />
-      <Route
-        path="/register"
-        element={
-          <PublicRoute>
-            <RegisterPage />
-          </PublicRoute>
-        }
-      />
+      <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+      <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
-      {/* Protected Routes */}
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <MainLayout>
-              <DashboardPage />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/" element={<ProtectedRoute><MainLayout><DashboardPage /></MainLayout></ProtectedRoute>} />
+      <Route path="/dashboard" element={<ProtectedRoute><MainLayout><DashboardPage /></MainLayout></ProtectedRoute>} />
 
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <MainLayout>
-              <DashboardPage />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/job-postings" element={<ProtectedRoute><MainLayout><JobBoardPage /></MainLayout></ProtectedRoute>} />
+      <Route path="/job-postings/:id" element={<ProtectedRoute><MainLayout><JobPostingDetailPage /></MainLayout></ProtectedRoute>} />
+      <Route path="/job-postings/:id/outreach" element={<ProtectedRoute><MainLayout><OutreachPage /></MainLayout></ProtectedRoute>} />
 
-      <Route
-        path="/jobs"
-        element={
-          <ProtectedRoute>
-            <MainLayout>
-              <JobsListPage />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/saved-searches" element={<ProtectedRoute><MainLayout><SavedSearchesPage /></MainLayout></ProtectedRoute>} />
 
-      <Route
-        path="/jobs/create"
-        element={
-          <ProtectedRoute>
-            <MainLayout>
-              <CreateJobPage />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/companies" element={<ProtectedRoute><MainLayout><CompaniesPage /></MainLayout></ProtectedRoute>} />
+      <Route path="/companies/:id" element={<ProtectedRoute><MainLayout><CompanyDetailPage /></MainLayout></ProtectedRoute>} />
 
-      <Route
-        path="/jobs/:id"
-        element={
-          <ProtectedRoute>
-            <MainLayout>
-              <JobDetailPage />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/profile" element={<ProtectedRoute><MainLayout><ProfilePage /></MainLayout></ProtectedRoute>} />
 
-      <Route
-        path="/resumes"
-        element={
-          <ProtectedRoute>
-            <MainLayout>
-              <ResumesPage />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/resumes" element={<ProtectedRoute><MainLayout><ResumesPage /></MainLayout></ProtectedRoute>} />
+      <Route path="/resumes/create" element={<ProtectedRoute><MainLayout><CreateResumePage /></MainLayout></ProtectedRoute>} />
+      <Route path="/resumes/:id" element={<ProtectedRoute><MainLayout><ResumeDetailPage /></MainLayout></ProtectedRoute>} />
 
-      <Route
-        path="/resumes/create"
-        element={
-          <ProtectedRoute>
-            <MainLayout>
-              <CreateResumePage />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/applications" element={<ProtectedRoute><MainLayout><ApplicationsPage /></MainLayout></ProtectedRoute>} />
 
-      <Route
-        path="/resumes/:id"
-        element={
-          <ProtectedRoute>
-            <MainLayout>
-              <ResumeDetailPage />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/logs"
-        element={
-          <ProtectedRoute>
-            <MainLayout>
-              <LogsPage />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/api-keys"
-        element={
-          <ProtectedRoute>
-            <MainLayout>
-              <ApiKeysPage />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/settings"
-        element={
-          <ProtectedRoute>
-            <MainLayout>
-              <SettingsPage />
-            </MainLayout>
-          </ProtectedRoute>
-        }
-      />
-
-      {/* 404 */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
 
-/**
- * Main App
- */
 export default function App() {
   return (
     <Router>

@@ -1,11 +1,10 @@
 import { useAuth } from '@hooks/useAuth'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 
 export default function Header() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
-  const location = useLocation()
   const [profileOpen, setProfileOpen] = useState(false)
 
   const handleLogout = () => {
@@ -16,85 +15,49 @@ export default function Header() {
   const displayName = user?.name || user?.email?.split('@')[0] || 'User'
   const avatarInitial = displayName.charAt(0).toUpperCase()
 
-  const navItems = [
-    { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Jobs', path: '/jobs' },
-    { label: 'Resumes', path: '/resumes' },
-    { label: 'Logs', path: '/logs' },
-    { label: 'API Keys', path: '/api-keys' },
-    { label: 'Settings', path: '/settings' },
-  ]
-
   return (
-    <header className="backdrop-blur-md bg-slate-900/60 border-b border-slate-800/50 sticky top-0 z-40">
-      <div className="px-8 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">J</span>
+    <header className="h-12 bg-white border-b border-gray-200 flex items-center justify-end px-4 flex-shrink-0">
+      <div className="relative">
+        <button
+          onClick={() => setProfileOpen(!profileOpen)}
+          className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-gray-100 transition-colors"
+        >
+          <div className="w-6 h-6 bg-[#111111] rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+            {avatarInitial}
+          </div>
+          <span className="hidden sm:inline text-sm text-gray-700 font-medium">{displayName}</span>
+          <svg className="w-3 h-3 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {profileOpen && (
+          <div className="absolute right-0 mt-1 w-52 bg-white border border-gray-200 rounded-md shadow-sm py-1 z-50">
+            <div className="px-4 py-3 border-b border-gray-100">
+              <p className="text-sm font-semibold text-[#111111]">{displayName}</p>
+              <p className="text-xs text-gray-500 truncate mt-0.5">{user?.email}</p>
+              <span className="inline-block mt-2 text-xs font-medium px-2 py-0.5 bg-gray-100 text-gray-600 rounded">
+                {user?.plan === 'premium' ? 'Premium' : 'Free'} Plan
+              </span>
             </div>
-            <h1 className="text-lg font-bold text-white">Job Processor</h1>
+            <div className="py-1">
+              <button
+                onClick={() => { navigate('/settings'); setProfileOpen(false) }}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Settings
+              </button>
+            </div>
+            <div className="border-t border-gray-100 py-1">
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                Sign out
+              </button>
+            </div>
           </div>
-
-          <nav className="hidden md:flex items-center gap-1">
-            {navItems.map((item) => {
-              const isActive = location.pathname === item.path
-              return (
-                <button
-                  key={item.path}
-                  onClick={() => navigate(item.path)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'bg-purple-600/20 text-purple-400'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              )
-            })}
-          </nav>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <button
-              onClick={() => setProfileOpen(!profileOpen)}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-slate-800/50 transition-colors"
-            >
-              <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                {avatarInitial}
-              </div>
-              <span className="hidden sm:inline text-sm text-slate-300">{displayName}</span>
-              <span className="text-slate-400">▼</span>
-            </button>
-
-            {profileOpen && (
-              <div className="absolute right-0 mt-2 w-48 backdrop-blur-md bg-slate-900/95 border border-slate-800 rounded-lg shadow-xl py-2">
-                <div className="px-4 py-2 border-b border-slate-800">
-                  <p className="text-sm text-slate-300 font-medium">{displayName}</p>
-                  <p className="text-xs text-slate-500 truncate">{user?.email}</p>
-                  <p className="text-xs text-purple-400 mt-0.5">{user?.plan === 'premium' ? 'Premium' : 'Free'} Plan</p>
-                </div>
-                <button
-                  onClick={() => {
-                    navigate('/settings')
-                    setProfileOpen(false)
-                  }}
-                  className="w-full text-left px-4 py-2 text-sm text-slate-300 hover:bg-slate-800/50 transition-colors"
-                >
-                  Settings
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors border-t border-slate-800 mt-2 pt-2"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
+        )}
       </div>
     </header>
   )

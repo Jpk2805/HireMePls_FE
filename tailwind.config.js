@@ -3,13 +3,19 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['DM Sans', 'system-ui', '-apple-system', 'sans-serif'],
+      },
       colors: {
-        primary: '#3b82f6',
-        secondary: '#8b5cf6',
-        success: '#10b981',
-        danger: '#ef4444',
-        warning: '#f59e0b',
-        info: '#0ea5e9',
+        ink: '#111111',
+        'ink-secondary': '#666666',
+        'ink-muted': '#999999',
+        surface: '#FFFFFF',
+        'surface-muted': '#F9F9F8',
+        success: '#16A34A',
+        danger: '#DC2626',
+        warning: '#D97706',
+        info: '#2563EB',
       },
       spacing: {
         '128': '32rem',

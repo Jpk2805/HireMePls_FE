@@ -1,6 +1,6 @@
 import React, { createContext, useState, useCallback, useEffect } from 'react'
 import * as authService from '@services/auth.service'
-import { User, AuthContextType } from '@types/index'
+import { User, AuthContextType } from '@/types/index'
 import toast from 'react-hot-toast'
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)

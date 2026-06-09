@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import * as jobService from '@services/job.service'
-import { Job, PaginatedResponse } from '@types/index'
+import { Job, PaginatedResponse } from '@/types/index'
 import toast from 'react-hot-toast'
 
 export const useJob = () => {

@@ -1,5 +1,5 @@
 import { apiClient } from './api'
-import { User } from '@types/index'
+import { User } from '@/types/index'
 
 export interface RegisterPayload {
   email: string
@@ -115,6 +115,14 @@ export const resetPassword = async (
 }
 
 /**
+ * Update profile (name)
+ */
+export const updateProfile = async (payload: { name?: string }): Promise<User> => {
+  const response = await apiClient.patch('/auth/me', payload)
+  return response.data
+}
+
+/**
  * Change password (authenticated)
  */
 export const changePassword = async (
@@ -140,4 +148,5 @@ export default {
   requestPasswordReset,
   resetPassword,
   changePassword,
+  updateProfile,
 }

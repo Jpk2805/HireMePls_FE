@@ -1,12 +1,29 @@
 import { apiClient } from './api'
-import { Job, PaginatedResponse, PaginationParams } from '@types/index'
+import { Job, PaginatedResponse, PaginationParams } from '@/types/index'
 
-export interface JobStats {
-  pending: number
-  active: number
-  completed: number
-  failed: number
-  total: number
+export type StatsRange = '24h' | '7d' | '30d'
+
+export interface DashboardStats {
+  counts: {
+    total: number
+    pending: number
+    active: number
+    completed: number
+    failed: number
+    cancelled: number
+  }
+  byType: Record<string, number>
+  successRate: number
+  avgDurationMs: number
+  timeSeries: Array<{ label: string; completed: number; failed: number; total: number }>
+  recentJobs: Array<{
+    id: string
+    name: string | null
+    type: string
+    status: string
+    createdAt: string
+    duration: number | null
+  }>
 }
 
 export interface CreateJobPayload {
@@ -21,11 +38,11 @@ export interface JobFilters extends PaginationParams {
 }
 
 /**
- * Get job statistics
+ * Get dashboard statistics
  */
-export const getJobStats = async (): Promise<JobStats> => {
-  const response = await apiClient.get('/jobs/stats')
-  return response.data
+export const getJobStats = async (range: StatsRange = '7d'): Promise<DashboardStats> => {
+  const response = await apiClient.get(`/jobs/stats?range=${range}`)
+  return response.data.data
 }
 
 /**

@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import { AuthContext } from '@context/AuthContext'
-import { AuthContextType } from '@types/index'
+import { AuthContextType } from '@/types/index'
 
 /**
  * Hook to use authentication context

@@ -103,3 +103,142 @@ export interface AuthContextType {
   logout: () => void
   updateUser: (user: User) => void
 }
+
+// ─── Job Board ────────────────────────────────────────────────────────────────
+
+export interface ParsedDescription {
+  responsibilities: string[]
+  requirements: string[]
+  niceToHave: string[]
+  benefits: string[]
+  aboutCompany: string
+  salary: string | null
+}
+
+export interface JobPostingItem {
+  id: string
+  title: string
+  company: string
+  companyId?: string
+  locations: string[]
+  url: string
+  source: string
+  postedAt?: string
+  contentHash: string
+  descriptionRaw: string
+  descriptionParsed?: ParsedDescription
+  technologiesReq?: string[]
+  technologiesNice?: string[]
+  experienceLevel?: string
+  workMode?: string
+  jobType?: string
+  yearsRequired?: number
+  salaryMin?: number
+  salaryMax?: number
+  salaryCurrency?: string
+  savedSearchId?: string
+  createdAt: string
+  updatedAt: string
+  matchScore: number | null
+  reasoning: string | null
+  userFeedback: 'interested' | 'not_interested' | 'applied' | null
+}
+
+export interface JobPostingFilters {
+  page?: number
+  limit?: number
+  experienceLevel?: string
+  workMode?: string
+  jobType?: string
+  technologies?: string
+  minScore?: number
+  locations?: string
+  query?: string
+  source?: string
+  postedAfter?: string
+  postedBefore?: string
+  sortBy?: 'score' | 'postedAt' | 'salaryMin' | 'createdAt'
+  sortDir?: 'asc' | 'desc'
+}
+
+export interface PaginatedJobPostings {
+  postings: JobPostingItem[]
+  total: number
+  page: number
+  limit: number
+  pages: number
+}
+
+// ─── Saved Searches ───────────────────────────────────────────────────────────
+
+export type ScrapeSource =
+  | 'linkedin'
+  | 'indeed'
+  | 'glassdoor'
+  | 'greenhouse'
+  | 'lever'
+  | 'ashby'
+  | 'workable'
+  | 'smartrecruiters'
+
+export interface SavedSearch {
+  id: string
+  userId: string
+  name: string
+  query: string
+  locations: string[]
+  sources: ScrapeSource[]
+  cronExpr?: string
+  isActive: boolean
+  lastRunAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface CreateSavedSearchInput {
+  name: string
+  query: string
+  locations: string[]
+  sources: ScrapeSource[]
+  cronExpr?: string
+}
+
+// ─── Companies ────────────────────────────────────────────────────────────────
+
+export type AtsType =
+  | 'greenhouse'
+  | 'lever'
+  | 'ashby'
+  | 'workable'
+  | 'smartrecruiters'
+  | 'bamboohr'
+  | 'custom'
+
+export interface Company {
+  id: string
+  name: string
+  domain?: string
+  logoUrl?: string
+  atsType?: AtsType
+  atsSlug?: string
+  careerUrl?: string
+  isActive: boolean
+  autoCreated: boolean
+  createdAt: string
+}
+
+export interface CompanyWatch {
+  id: string
+  userId: string
+  companyId: string
+  createdAt: string
+  company: Company
+}
+
+export interface CreateCompanyInput {
+  name: string
+  domain?: string
+  atsType: AtsType
+  atsSlug?: string
+  careerUrl?: string
+}

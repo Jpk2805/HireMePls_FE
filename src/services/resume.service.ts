@@ -1,14 +1,15 @@
 import { apiClient } from './api'
-import { PaginatedResponse, PaginationParams } from '@types/index'
+import { PaginatedResponse, PaginationParams } from '@/types/index'
 
 export interface Resume {
   id: string
   userId: string
-  jobPostingUrl?: string
-  workHistory?: string
-  sections?: Record<string, any>
-  pdfUrl?: string
-  status: 'pending' | 'completed' | 'failed'
+  title: string
+  content?: Record<string, unknown>
+  coverLetter?: string | null
+  pdfUrl?: string | null
+  status: string
+  progress: number
   createdAt: string
   updatedAt: string
 }
@@ -41,9 +42,22 @@ export const getResume = async (resumeId: string): Promise<Resume> => {
 export const createResume = async (payload: {
   jobPostingUrl: string
   workHistory: string
+  tone?: string
+  jobTitle?: string
+  jobCompany?: string
+  selectedRepos?: { name: string; readme: string }[]
 }): Promise<Resume> => {
   const response = await apiClient.post('/resumes', payload)
   return response.data
+}
+
+/**
+ * Get a short-lived download URL for the resume PDF.
+ * Returns the URL — caller opens it via window.open or a temp <a>.
+ */
+export const getResumeDownloadUrl = async (resumeId: string): Promise<string> => {
+  const response = await apiClient.get<{ url: string }>(`/resumes/${resumeId}/download`)
+  return response.data.url
 }
 
 /**
@@ -58,5 +72,6 @@ export default {
   listResumes,
   getResume,
   createResume,
+  getResumeDownloadUrl,
   deleteResume,
 }
